@@ -1,0 +1,251 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  CLIENT
+  DEVELOPER
+}
+
+enum ProjectStatus {
+  DRAFT
+  PENDING_REVIEW
+  APPROVED
+  IN_PROGRESS
+  REVIEW
+  COMPLETED
+  CANCELLED
+}
+
+enum ProjectType {
+  WEBSITE
+  MOBILE_APP
+  ECOMMERCE
+  PORTFOLIO
+  CUSTOM_SYSTEM
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentProvider {
+  STRIPE
+  CHAPA
+  TELEBIRR
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum Currency {
+  ETB
+  USD
+  CAD
+}
+
+model User {
+  id                   String    @id @default(cuid())
+  email                String    @unique
+  name                 String
+  password             String
+  role                 UserRole  @default(CLIENT)
+  phone                String?
+  avatar               String?
+  passwordResetToken   String?
+  passwordResetExpires DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  // Relations
+  projectsAsClient    Project[]         @relation("ClientProjects")
+  projectsAsDeveloper Project[]         @relation("DeveloperProjects")
+  conversations       AIConversation[]
+  refreshTokens       RefreshToken[]
+
+  @@index([email])
+  @@index([role])
+  @@index([passwordResetToken])
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+}
+
+model AIConversation {
+  id        String   @id @default(cuid())
+  userId    String?
+  sessionId String   @unique
+  messages  Json     // Array of ConversationMessage
+  intent    ProjectType?
+  status    String   @default("ACTIVE") // ACTIVE, COMPLETED, ABANDONED
+  // Contact info collected from conversation
+  contactName  String?
+  contactEmail String?
+  contactPhone String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user        User?          @relation(fields: [userId], references: [id])
+  projectBrief ProjectBrief?
+
+  @@index([sessionId])
+  @@index([userId])
+  @@index([status])
+  @@index([contactEmail])
+}
+
+model ProjectBrief {
+  id               String        @id @default(cuid())
+  conversationId   String        @unique
+  projectType      ProjectType
+  businessType     String?
+  features         String[]      @default([])
+  designPreferences String?
+  timeline         String?
+  budgetRange      String?
+  exampleWebsites  String[]      @default([])
+  summary          String        @db.Text
+  status           ProjectStatus @default(PENDING_REVIEW)
+  adminNotes       String?       @db.Text
+  approvedBudget   Float?
+  approvedCurrency Currency?
+  approvedDeadline DateTime?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  conversation AIConversation @relation(fields: [conversationId], references: [sessionId])
+  project      Project?
+
+  @@index([status])
+  @@index([projectType])
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  title       String
+  description String        @db.Text
+  type        ProjectType
+  status      ProjectStatus @default(DRAFT)
+  clientId    String
+  assignedToId String?
+  briefId     String?       @unique
+  budget      Float
+  currency    Currency
+  deadline    DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  client      User          @relation("ClientProjects", fields: [clientId], references: [id])
+  assignedTo  User?         @relation("DeveloperProjects", fields: [assignedToId], references: [id])
+  brief       ProjectBrief? @relation(fields: [briefId], references: [id])
+  invoices    Invoice[]
+  messages    ProjectMessage[]
+
+  @@index([clientId])
+  @@index([assignedToId])
+  @@index([status])
+  @@index([type])
+}
+
+model ProjectMessage {
+  id        String   @id @default(cuid())
+  projectId String
+  senderId  String
+  content   String   @db.Text
+  attachments String[] @default([])
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([createdAt])
+}
+
+model Invoice {
+  id            String        @id @default(cuid())
+  projectId     String
+  invoiceNumber String        @unique
+  amount        Float
+  currency      Currency
+  status        InvoiceStatus @default(DRAFT)
+  dueDate       DateTime
+  paidAt        DateTime?
+  items         Json          // Array of InvoiceItem
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  project  Project   @relation(fields: [projectId], references: [id])
+  payments Payment[]
+
+  @@index([projectId])
+  @@index([invoiceNumber])
+  @@index([status])
+  @@index([dueDate])
+}
+
+model Payment {
+  id            String         @id @default(cuid())
+  invoiceId     String
+  amount        Float
+  currency      Currency
+  provider      PaymentProvider
+  status        PaymentStatus  @default(PENDING)
+  transactionId String?
+  metadata      Json?          // Provider-specific metadata
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
+
+  @@index([invoiceId])
+  @@index([transactionId])
+  @@index([status])
+  @@index([provider])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  changes   Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
+
+
+

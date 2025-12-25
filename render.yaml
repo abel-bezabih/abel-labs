@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: abel-labs-api
+    env: node
+    rootDir: .
+    buildCommand: yarn install && yarn workspace @abel-labs/database db:generate && yarn workspace @abel-labs/api build
+    startCommand: yarn workspace @abel-labs/api start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+    healthCheckPath: /health
+
+databases:
+  - name: abel-labs-postgres
+    databaseName: abellabs
+    user: abellabs
+
+
+

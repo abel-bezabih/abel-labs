@@ -1,0 +1,38 @@
+<svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- White gradient for text on dark backgrounds -->
+    <linearGradient id="whiteGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#e0e7ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Code Icon -->
+  <g transform="translate(5, 10)">
+    <path d="M16 18L22 12L16 6" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M8 6L2 12L8 18" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+  
+  <!-- Abel Text -->
+  <text x="40" y="35" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="url(#whiteGradient)">
+    Abel
+  </text>
+  
+  <!-- Labs Text with background bar -->
+  <rect x="85" y="20" width="50" height="18" rx="4" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+  <text x="90" y="33" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="url(#whiteGradient)">
+    Labs
+  </text>
+</svg>
+
+
+
+
+
+
+
+
+
+
+
