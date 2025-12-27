@@ -15,8 +15,9 @@ module.exports = {
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
   },
-  ignorePatterns: ['dist', 'build', '.next', 'node_modules'],
+  ignorePatterns: ['dist', 'build', '.next', 'node_modules', 'apps/client-portal', 'apps/admin-dashboard'],
 };
+
 
 
 

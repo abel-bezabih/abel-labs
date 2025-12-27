@@ -11,3 +11,4 @@ ALTER TYPE "Currency" ADD VALUE 'CAD';
 
 
 
+

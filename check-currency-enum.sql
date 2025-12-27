@@ -10,3 +10,4 @@ SELECT unnest(enum_range(NULL::"Currency")) AS currency_value;
 
 
 
+
