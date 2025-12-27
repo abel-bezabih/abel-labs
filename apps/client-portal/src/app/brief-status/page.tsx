@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 import { 
@@ -44,7 +44,7 @@ interface Brief {
   };
 }
 
-export default function BriefStatusPage() {
+function BriefStatusContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('sessionId');
   const briefId = searchParams.get('briefId');
@@ -391,6 +391,28 @@ export default function BriefStatusPage() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+export default function BriefStatusPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 200 }}
+            className="text-center"
+          >
+            <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+            <p className="text-gray-600">Loading...</p>
+          </motion.div>
+        </div>
+      }
+    >
+      <BriefStatusContent />
+    </Suspense>
   );
 }
 

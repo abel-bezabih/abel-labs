@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { CreditCard, Loader2, CheckCircle2, AlertCircle, ArrowRight, Receipt, Calendar, DollarSign, Building2, Download } from 'lucide-react';
@@ -32,7 +32,7 @@ interface Invoice {
   };
 }
 
-export default function PaymentPage() {
+function PaymentContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [invoiceId, setInvoiceId] = useState<string | null>(null);
@@ -430,6 +430,28 @@ export default function PaymentPage() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+export default function PaymentPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 200 }}
+            className="text-center"
+          >
+            <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+            <p className="text-gray-600">Loading...</p>
+          </motion.div>
+        </div>
+      }
+    >
+      <PaymentContent />
+    </Suspense>
   );
 }
 

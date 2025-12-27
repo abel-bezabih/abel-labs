@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { XCircle, ArrowLeft, RefreshCw, Receipt } from 'lucide-react';
@@ -19,7 +19,7 @@ interface Invoice {
   };
 }
 
-export default function PaymentCancelPage() {
+function PaymentCancelContent() {
   const searchParams = useSearchParams();
   const invoiceId = searchParams.get('invoice');
   const [invoice, setInvoice] = useState<Invoice | null>(null);
@@ -131,6 +131,20 @@ export default function PaymentCancelPage() {
         </div>
       </motion.div>
     </div>
+  );
+}
+
+export default function PaymentCancelPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-white to-orange-50">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+        </div>
+      }
+    >
+      <PaymentCancelContent />
+    </Suspense>
   );
 }
 
